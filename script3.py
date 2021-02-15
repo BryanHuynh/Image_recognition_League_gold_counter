@@ -36,27 +36,22 @@ def main():
     draw_player_boxes(image, boxes)
     player_box_images = get_player_box_images(image, boxes)
 
-    player_item_locs = []
+    players_items = []
     for box in player_box_images:
-        locs = []
+        items_locations = []
         for _id in item_data:
-            locs.append((templateMatching(item_data[_id]['image'], box), _id))
-        display_matches_w_id(locs, box)
+            #[(location, item_id)]
+            items_locations.append((templateMatching(item_data[_id]['image'], box), _id))
+        display_matches_w_id(items_locations, box)
+        player_items = {"image": box, "items": items_locations}
+        players_items.append(player_items)
+    
+    for player_items in players_items:
+        extractItems(player_items['items'])
+        showImage(player_items['image'])
 
-    for box in player_box_images:
-        showImage(box)
-'''
-    player_item_locs = []
-    for box in player_box_images:
-        locs = []
-        for _id in item_data:
-            locs.append(templateMatching(item_data[_id]['image'], box))
-        display_matches(locs, box)
+    
 
-    for box in player_box_images:
-        showImage(box)
-
-'''
 
 
 def get_player_box_images(image, boxes):
@@ -110,6 +105,7 @@ def display_matches(locs, image, image_id):
         for pt in zip(*loc[::-1]):
             cv2.rectangle(image, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
             cv2.putText(image, image_id, (pt[0], pt[1] + 32), font, fontScale, fontColor, lineType)
+        showImage(image)
 
     
 def display_matches_w_id(locs, image):
@@ -119,7 +115,18 @@ def display_matches_w_id(locs, image):
         for pt in zip(*loc[::-1]):
             cv2.rectangle(image, pt, (pt[0] + w, pt[1] + h), (0,0,255), 2)
             cv2.putText(image, loc_id[1], (pt[0], pt[1] + 32), font, fontScale, fontColor, lineType)
-    
+
+
+
+def extractItems(locs):
+    items = []
+    for loc_id in locs:
+        loc = loc_id[0]
+        for pt in zip(*loc[::-1]):
+            if pt[1] > 0 or pt[0] > 0:
+                items.append(loc_id[1])
+    print(items)
+
 
 def showImage(image, name='image'):
     cv2.imshow(name, image)
