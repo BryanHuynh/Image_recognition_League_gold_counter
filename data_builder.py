@@ -10,7 +10,7 @@ for id in data['data']:
     d[id] = ({
         'id'  : id,
         'name': data['data'][id]['name'],
-        'gold': data['data'][id]['gold']['base']
+        'gold': data['data'][id]['gold']['total']
     })
 
     img_url = "http://ddragon.leagueoflegends.com/cdn/11.3.1/img/item/"+id+".png"

@@ -47,7 +47,8 @@ def main():
         players_items.append(player_items)
     
     for player_items in players_items:
-        extractItems(player_items['items'])
+        items = extractItems(player_items['items'])
+        print(get_total_cost(items, item_data))
         showImage(player_items['image'])
 
     
@@ -56,12 +57,29 @@ def main():
 
 def get_player_box_images(image, boxes):
     images = []
+    added_boxes = []
     for box in boxes:
-        image_box = image[box[0][1]:box[1][1],box[0][0]:box[1][0]]
-        images.append(image_box)
+        if not is_close_duplicates_from_list(box, added_boxes, 5):
+            image_box = image[box[0][1]:box[1][1],box[0][0]:box[1][0]]
+            images.append(image_box)
+            added_boxes.append(box)
         #showImage(image_box)
+        print(box)
 
     return images
+
+def is_close_duplicates_from_list(test, items, range):
+    if len(items) == 0: return False
+    for item in items:
+        if test[0][0] + range >= item[0][0] and test[0][0] - range <= item[0][0]:
+            if test[0][1] + range >= item[0][1] and test[0][1] - range <= item[0][1]:
+                if test[1][0] + range >= item[1][0] and test[1][0] - range <= item[1][0]:
+                    if test[1][1] + range >= item[1][1] and test[1][1] - range <= item[1][1]:
+                        return True
+    
+    return False
+
+
 
 
 
@@ -119,14 +137,43 @@ def display_matches_w_id(locs, image):
 
 
 def extractItems(locs):
+    items_x_postions = []
     items = []
     for loc_id in locs:
         loc = loc_id[0]
         for pt in zip(*loc[::-1]):
             if pt[1] > 0 or pt[0] > 0:
-                items.append(loc_id[1])
-    print(items)
+                # check if there is another value in locs with the same position
+                # store the x value in a list. 
+                # check if there exist another x value around 32 pixels
 
+                if(not item_in_list(pt[0], items_x_postions, 10)):
+                    items_x_postions.append(pt[0])
+                    items.append(loc_id[1])
+    print(items)
+    return items
+
+
+
+def get_total_cost(items, items_data):
+    cost = 0
+    for item in items:
+        print(items_data[item]['name'])
+        cost += items_data[item]['gold']
+    return cost
+
+
+
+
+
+def item_in_list(item, items, range):
+    if len(items) == 0: return False
+    n_item = item - range
+    p_item = item + range
+    for i in items:
+        if n_item <= i and p_item >= i:
+            return True 
+    return False        
 
 def showImage(image, name='image'):
     cv2.imshow(name, image)
