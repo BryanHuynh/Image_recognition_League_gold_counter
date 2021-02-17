@@ -52,7 +52,7 @@ def main(image_path):
         #showImage(player_items['image'])
 
     combined = make_rows_into_single(cost_images)
-    #showImage(combined)
+    showImage(combined)
 
     cv2.imwrite("output.jpg", combined)
 
@@ -285,4 +285,8 @@ def get_item_images(data):
     cv2.waitKey(0)
 
 
-
+if __name__ == "__main__":
+    print ('Number of arguments:', len(sys.argv), 'arguments.')
+    print ('Argument List:', str(sys.argv))
+    print(sys.argv[1])
+    main(sys.argv[1])
