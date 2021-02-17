@@ -46,12 +46,20 @@ def main():
         player_items = {"image": box, "items": items_locations}
         players_items.append(player_items)
     
+    cost_images = []
     for player_items in players_items:
-        items = extractItems(player_items['items'])
-        print(get_total_cost(items, item_data))
-        showImage(player_items['image'])
+        cost_images.append(extend_and_add_cost(player_items, item_data))
+        #showImage(player_items['image'])
 
-    
+    combined = make_rows_into_single(cost_images)
+    showImage(combined)
+
+def extend_and_add_cost(player_items, item_data):
+    items = extractItems(player_items['items'])
+    cost = get_total_cost(items, item_data)
+    extend = cv2.copyMakeBorder(player_items['image'], 5, 5, 0, 200, cv2.BORDER_CONSTANT)
+    cv2.putText(extend, str(cost), (32*8, 32) , font, 1, fontColor, lineType)
+    return extend
 
 
 
@@ -161,10 +169,6 @@ def get_total_cost(items, items_data):
         print(items_data[item]['name'])
         cost += items_data[item]['gold']
     return cost
-
-
-
-
 
 def item_in_list(item, items, range):
     if len(items) == 0: return False
