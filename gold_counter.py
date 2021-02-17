@@ -72,7 +72,7 @@ def get_player_box_images(image, boxes):
             images.append(image_box)
             added_boxes.append(box)
         #showImage(image_box)
-        print(box)
+        #print(box)
 
     return images
 
@@ -106,7 +106,7 @@ def templateMatching(template, image, threshold = 0.5):
     return loc
 
 def get_player_boxes(image, item_data):
-    ward_loc = findWard(image, item_data)
+    farsight_loc, oracle_loc, ward_loc = findWards(image, item_data)
     w, h = (32,32)
     padding = 5
     item_row_size = (32 * 6) + 20
@@ -114,16 +114,31 @@ def get_player_boxes(image, item_data):
     for pt in zip(*ward_loc[::-1]):
         box = ((pt[0] - item_row_size, pt[1] - padding), (pt[0] + w, pt[1] + h + padding))
         boxes.append(box)
-        #cv2.rectangle(image, (pt[0] - item_row_size, pt[1] - padding), (pt[0] + w, pt[1] + h + padding), (0,0,255), 2)
+        
+    for pt in zip(*oracle_loc[::-1]):
+        box = ((pt[0] - item_row_size, pt[1] - padding), (pt[0] + w, pt[1] + h + padding))
+        boxes.append(box)
+    
+    for pt in zip(*farsight_loc[::-1]):
+        box = ((pt[0] - item_row_size, pt[1] - padding), (pt[0] + w, pt[1] + h + padding))
+        boxes.append(box)
     return boxes
 
 def draw_player_boxes(image, boxes):
     for box in boxes:
         cv2.rectangle(image, box[0], box[1], (0,0,255), 2)
 
-def findWard(image, item_data):
+def findWards(image, item_data):
     template = item_data['3340']['image']
-    return templateMatching(template, image, threshold=0.52)
+    stealthWard = templateMatching(template, image, threshold=0.52)
+    template = item_data['3364']['image']
+    oracle = templateMatching(template, image, threshold=0.52)
+    template = item_data['3363']['image']
+    farsight = templateMatching(template, image, threshold=0.52)
+    return (farsight, oracle, stealthWard)
+
+
+
 
 def display_matches(locs, image, image_id):
     w, h = (32,32)
@@ -158,7 +173,7 @@ def extractItems(locs):
                 if(not item_in_list(pt[0], items_x_postions, 10)):
                     items_x_postions.append(pt[0])
                     items.append(loc_id[1])
-    print(items)
+    #print(items)
     return items
 
 
@@ -166,7 +181,7 @@ def extractItems(locs):
 def get_total_cost(items, items_data):
     cost = 0
     for item in items:
-        print(items_data[item]['name'])
+        #print(items_data[item]['name'])
         cost += items_data[item]['gold']
     return cost
 
@@ -242,11 +257,11 @@ def make_rows_into_single(img_list):
         max_height += img.shape[0]
     w = np.max(max_width)
     h = max_height + padding
-    print(w,h)
+    #print(w,h)
 
     # create a new array with a size large enough to contain all the images
     final_image = np.zeros((h, w, 3), dtype=np.uint8)
-    print(final_image.shape)
+    #print(final_image.shape)
     current_y = 0  # keep track of where your current image was last placed in the y coordinate
     for image in img_list:
         # add an image to the final array and increment the y coordinate
