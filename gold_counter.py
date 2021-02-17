@@ -22,9 +22,11 @@ def openJson(filepath):
 
 def main(image_path):
     image = cv2.imread(image_path)
+    image = cv2.resize(image, (1920, 1080))
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     image_blur = cv2.GaussianBlur(image_gray, (3,3), 0)
     image_edge = cv2.Canny(image_blur, 10, 200)
+
 
     item_data = openJson('data.json')
     item_data = get_item_images(item_data)
